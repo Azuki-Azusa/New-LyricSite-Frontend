@@ -11,11 +11,16 @@
           icon="mdi-menu"
         />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+        <q-toolbar-title> ボカシ </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>
+          <q-btn v-if="user" round>
+            <q-avatar size="42px">
+              <img :src="user.photoURL" />
+            </q-avatar>
+          </q-btn>
+          <q-btn v-else round @click="signIn" icon="mdi-account"></q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -25,66 +30,95 @@
       :class="Dark.isActive ? 'bg-dark' : 'bg-grey-2'"
     >
       <q-list>
-        <q-item-label header>Essential Links</q-item-label>
-        <q-item clickable tag="a" target="_blank" href="https://quasar.dev">
+        <q-item-label header>Menu</q-item-label>
+        <q-item v-for="(item, index) in sider" :key="index" clickable :to="item.route">
           <q-item-section avatar>
-            <q-icon name="mdi-school" />
+            <q-icon :name="item.icon" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Docs</q-item-label>
-            <q-item-label caption>quasar.dev</q-item-label>
+            <q-item-label>{{ item.name }}</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable tag="a" target="_blank" href="https://github.com/quasarframework/">
-          <q-item-section avatar>
-            <q-icon name="mdi-code-tags" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Github</q-item-label>
-            <q-item-label caption>github.com/quasarframework</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable tag="a" target="_blank" href="https://chat.quasar.dev">
-          <q-item-section avatar>
-            <q-icon name="mdi-message-text" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Discord Chat Channel</q-item-label>
-            <q-item-label caption>chat.quasar.dev</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable tag="a" target="_blank" href="https://forum.quasar.dev">
-          <q-item-section avatar>
-            <q-icon name="mdi-forum" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Forum</q-item-label>
-            <q-item-label caption>forum.quasar.dev</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable tag="a" target="_blank" href="https://twitter.com/quasarframework">
+
+        <q-item clickable target="_blank" href="https://twitter.com/c980129">
           <q-item-section avatar>
             <q-icon name="mdi-twitter" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Twitter</q-item-label>
-            <q-item-label caption>@quasarframework</q-item-label>
+            <q-item-label>Azu機</q-item-label>
+            <q-item-label caption>@c980129</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
     </q-drawer>
 
     <q-page-container>
-      <editor />
+      <router-view v-slot="{ Component }">
+        <template v-if="Component">
+          <keep-alive>
+            <component :is="Component"></component>
+          </keep-alive>
+        </template>
+      </router-view>
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import editor from './components/Editor'
-import { Dark } from 'quasar'
+import { ref } from "vue";
+import { Dark } from "quasar";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+} from "firebase/auth";
 
-Dark.set(true)
-const leftDrawerOpen = ref(false)
+const provider = new GoogleAuthProvider();
+const auth = getAuth();
+const user = ref();
+
+onAuthStateChanged(auth, (userPara) => {
+  if (userPara) {
+    user.value = userPara;
+    // ...
+  } else {
+    user.value = null;
+    
+  }
+});
+
+const signIn = () => {
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      user.value = result.user;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+Dark.set(true);
+const leftDrawerOpen = ref(false);
+
+const sider = [
+  {
+    route: { name: 'Home' },
+    icon: 'mdi-music-note-eighth',
+    name: 'Songs'
+  },
+  {
+    route: { name: 'Upload'},
+    icon: 'mdi-pencil',
+    name: 'Upload'
+  }
+]
+
+
 </script>
+
+<style scoped>
+.q-header {
+  background-color: black;
+}
+</style>

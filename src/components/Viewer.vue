@@ -1,47 +1,63 @@
 <template>
-    <ul>
+    <ul class="viewer-ul">
         <li>{{showLyrics[0]}}</li>
         <li>{{showLyrics[1]}}</li>
-        <li>{{showLyrics[2]}}</li>
+        <li class="hl">{{showLyrics[2]}}</li>
         <li>{{showLyrics[3]}}</li>
         <li>{{showLyrics[4]}}</li>
     </ul>
 </template>
 
 <script setup>
-import { defineProps, ref, watch, onBeforeUnmount } from "vue";
+import { defineProps, ref, defineExpose, computed } from "vue";
 import { covertLyrics } from "@/utils/convert";
 
-const props = defineProps({lyrics});
-const htmlLyrics = covertLyrics(lyrics);
+const props = defineProps({lyrics: Array});
+const htmlLyrics = computed(() => {
+    return covertLyrics(props.lyrics)
+})
 
 const showLyrics = ref([])
 
 const resetShowLyric = (currentTime) => {
+    if (htmlLyrics.value.length == 0) return
     showLyrics.value = [' ', ' ', ' ', ' ',  ' ']
     var idxMid
-    for (var i = 0; i < htmlLyrics.length; i ++) {
-        if (htmlLyrics[i].time > currentTime) {
-            idxMid = i
+    var i
+    for (i = 0; i < htmlLyrics.value.length; i ++) {
+        if (htmlLyrics.value[i].time > currentTime) {
             break;
         }
     }
-    for (var i = idxMid; i >= 0 && i + 4 - idxMid >= 0; i --) {
-        showLyrics[i + 4 - idxMid] = htmlLyrics[i]
+    idxMid = i
+    for (i = idxMid; i >= 0 && i + 3 - idxMid >= 0; i --) {
+        if (i == htmlLyrics.value.length) {
+            showLyrics.value[3] == ' ';
+            continue;
+        }
+        showLyrics.value[i + 3 - idxMid] = htmlLyrics.value[i].text
     }
-    for (var i = idxMid + 1; i < htmlLyrics.length && i + 4 - idxMid < 5; i ++) {
-        showLyrics[i + 4 - idxMid] = htmlLyrics[i]
+    for (i = idxMid + 1; i < htmlLyrics.value.length && i + 3 - idxMid < 5; i ++) {
+        showLyrics.value[i + 3 - idxMid] = htmlLyrics.value[i].text
     }
 }
 
+defineExpose({
+    resetShowLyric
+})
 </script>
 
 <style scoped>
-iframe {
-  max-width: 100%;
+.viewer-ul li {
+    list-style: none;
+    min-height: 48px;
+    font-size: 32px;
+    margin: 16px 0 16px 0;
+    text-align: center;
+    color: grey;
 }
-.lyric-textarea {
-  max-height: calc(100vh - 50px);
-  overflow: auto;
+.viewer-ul .hl {
+    font-size: 40px;
+    color: white;
 }
 </style>
