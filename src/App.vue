@@ -84,7 +84,7 @@ onAuthStateChanged(auth, (userPara) => {
     // ...
   } else {
     user.value = null;
-    
+
   }
 });
 
@@ -108,9 +108,9 @@ const sider = [
     name: 'Songs'
   },
   {
-    route: { name: 'Upload'},
+    route: { name: 'MyUpload'},
     icon: 'mdi-pencil',
-    name: 'Upload'
+    name: 'MyUpload'
   }
 ]
 

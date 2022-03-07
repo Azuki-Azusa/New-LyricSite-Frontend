@@ -1,60 +1,46 @@
 <template>
   <div class="row">
     <div class="col-auto">
-      <q-input square outlined label="Title" v-model="song.title" />
+      <div class="title">{{song.title}}</div>
       <iframe
         id="player"
         type="text/html"
         width="640"
         height="360"
         :src="
-          'http://www.youtube.com/embed/' +
-          song.video_id +
-          '?enablejsapi=1'
+          'http://www.youtube.com/embed/' + song.video_id + '?enablejsapi=1'
         "
         frameborder="0"
       ></iframe>
-      <div>
-        <p>Click the number button to copy the timestamp.</p>
-        <p>Click the RUBY button to copy the format.</p>
-        <p>You can submit your lyric when PREVIEW mode.</p>
-      </div>
     </div>
     <div class="col">
-      <viewer :lyrics="song.lyric" ref="viewerCom"/>
+      <viewer :lyrics="song.lyric" ref="viewerCom" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineProps, computed, inject, onMounted, onActivated, onDeactivated } from "vue";
-import { QInput } from "quasar";
+import {
+  ref,
+  defineProps,
+  inject,
+  onActivated,
+  onDeactivated,
+} from "vue";
 import viewer from "../components/Viewer.vue";
+import { getAnalytics, logEvent } from "firebase/analytics";
+const analytics = getAnalytics();
 
 const viewerCom = ref();
 const props = defineProps({ id: Number });
-const id = computed(() => ~~(props.id || '1'))
+const id = ref(Number(props.id));
 const song = ref({
-    title: '',
-    video_id: '',
-    lyric: [],
+  title: "",
+  video_id: "",
+  lyric: [],
 });
 const axios = require("axios").default;
 const host = inject("host");
-
-onMounted(() => {
-  axios({
-    method: "get",
-    url: host + "/api/lyrics/" + id.value ,
-  })
-    .then(function (response) {
-      song.value = response.data;
-      song.value.lyric = JSON.parse(song.value.lyric);
-    })
-    .catch(function (e) {
-      console.log(e);
-    });
-});
 
 var tag = document.createElement("script");
 tag.src = "https://www.youtube.com/iframe_api";
@@ -76,8 +62,6 @@ function onYouTubeIframeAPIReady() {
 
 window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 
-
-
 const onPlayerReady = () => {
   clearInterval(timeInterval);
   timeInterval = setInterval(() => {
@@ -86,7 +70,24 @@ const onPlayerReady = () => {
   }, 100);
 };
 
-onActivated(() => {});
+onActivated(() => {
+    axios({
+    method: "get",
+    url: host + "/api/lyrics/" + id.value,
+  })
+    .then(function (response) {
+      song.value = response.data;
+      song.value.lyric = JSON.parse(song.value.lyric);
+      document.title = song.value.title;
+      logEvent(analytics, "open_song", {
+        id: song.value.id,
+        title: song.value.title,
+      });
+    })
+    .catch(function (e) {
+      console.log(e);
+    });
+});
 onDeactivated(() => {
   clearInterval(timeInterval);
 });
@@ -99,5 +100,9 @@ iframe {
 .lyric-textarea {
   max-height: calc(100vh - 50px);
   overflow: auto;
+}
+.title {
+    text-align:center;
+    font-size: 24px;
 }
 </style>

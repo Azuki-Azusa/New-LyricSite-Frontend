@@ -5,7 +5,6 @@ import { Quasar } from 'quasar'
 import { createRouter, createWebHashHistory } from 'vue-router'
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -23,7 +22,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 initializeApp(firebaseConfig);
-const analytics = getAnalytics();
 
 const routes = [
     {
@@ -35,16 +33,31 @@ const routes = [
         }
     },
     {
-        path: '/editor',
+        path: '/upload',
         name: 'Upload',
-        component: () => import('./views/Editor.vue'),
+        component: () => import('./views/Upload.vue'),
         meta: {
             title: 'ボカシ Upload'
         }
     },
     {
+        path: '/myupload',
+        name: 'MyUpload',
+        component: () => import('./views/MyUpload.vue'),
+        meta: {
+            title: 'ボカシ Upload'
+        }
+    },
+    {
+        path: '/edit/:id',
+        name: 'Edit',
+        props: true,
+        component: () => import('./views/Editor.vue'),
+    },
+    {
         path: '/song/:id',
         name: 'Song',
+        props: true,
         component: () => import('./views/Song.vue'),
     },
 ]
@@ -60,11 +73,11 @@ router.beforeEach((to, from, next) => {
     next()
 })
 
-const host = 'http://127.0.0.1:8001';
+console.log(process.env.VUE_APP_BACKEND_HOST)
+const host = process.env.VUE_APP_BACKEND_HOST;
 
 const app = createApp(App);
 app.use(Quasar, quasarUserOptions);
 app.use(router);
-app.provide('analytics', analytics);
 app.provide('host', host);
 app.mount('#app')

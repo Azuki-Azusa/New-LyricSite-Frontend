@@ -30,7 +30,7 @@ const clickSongCard = () => {
 <style scoped>
 .song-card {
     width: 100%;
-    max-width: 250px;
+    max-width: 200px;
     margin: 12px 12px 12px 12px;
 }
 .song-card:hover {

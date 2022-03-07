@@ -94,39 +94,16 @@
 </template>
 
 <script setup>
-import { ref, watch, onDeactivated, onActivated, inject, defineProps, onMounted } from "vue";
+import { ref, watch, onDeactivated, onActivated, inject } from "vue";
 import { QInput, copyToClipboard } from "quasar";
 import { useRouter } from 'vue-router'
 import viewer from "../components/Viewer.vue";
 import { getAuth } from "firebase/auth";
 
-const props = defineProps({ id: Number });
-const id = ref(Number(props.id));
-const axios = require("axios").default;
-const host = inject("host");
-
 const title = ref("");
 const viewerCom = ref();
 const lyrics = ref([]);
 const isPreview = ref(false);
-const videoId = ref("");
-
-onMounted(() => {
-  axios({
-    method: "get",
-    url: host + "/api/lyrics/" + id.value,
-  })
-    .then(function (response) {
-      var song = response.data;
-      lyrics.value = JSON.parse(song.lyric);
-      title.value = song.title;
-      videoId.value = song.video_id
-      document.title = 'Edit ' + song.title;
-    })
-    .catch(function (e) {
-      console.log(e);
-    });
-});
 
 watch(lyrics.value, (newValue) => {
   newValue.forEach((element) => {
@@ -144,6 +121,7 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;
 let timeInterval;
 const currentTime = ref(0);
+const videoId = ref("");
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
     events: {
@@ -155,7 +133,9 @@ function onYouTubeIframeAPIReady() {
 
 window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 
+const host = inject("host");
 const router = useRouter();
+const axios = require("axios").default;
 
 const clickSubmitButton = () => {
   const user = getAuth().currentUser;
@@ -163,10 +143,9 @@ const clickSubmitButton = () => {
     confirm('Please Login')
   }
   axios({
-    method: "put",
+    method: "post",
     url: host + "/api/lyrics",
     data: {
-      lyric_id: id.value,
       video_id: videoId.value,
       title: title.value,
       lyric: JSON.stringify(lyrics.value),
@@ -178,7 +157,7 @@ const clickSubmitButton = () => {
       router.push({ name: "Song", params: { id: data.lyric_id } });
     }
     else {
-      console.log(data.errMsg);
+      console.log(data.errMsg)
     }
   }).catch(function (e) {
     console.log(e);
@@ -233,9 +212,7 @@ const onPlayerReady = () => {
 const OnPlayerError = (e) => {
   console.log(e);
 };
-onActivated(() => {
-  document.title = 'Edit ' + title.value;
-});
+onActivated(() => {});
 onDeactivated(() => {
   clearInterval(timeInterval);
 });

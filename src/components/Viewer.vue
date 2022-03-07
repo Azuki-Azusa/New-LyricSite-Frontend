@@ -1,10 +1,10 @@
 <template>
     <ul class="viewer-ul">
-        <li>{{showLyrics[0]}}</li>
-        <li>{{showLyrics[1]}}</li>
-        <li class="hl">{{showLyrics[2]}}</li>
-        <li>{{showLyrics[3]}}</li>
-        <li>{{showLyrics[4]}}</li>
+        <li v-html="showLyrics[0]"></li>
+        <li v-html="showLyrics[1]"></li>
+        <li v-html="showLyrics[2]" class="hl"></li>
+        <li v-html="showLyrics[3]"></li>
+        <li v-html="showLyrics[4]"></li>
     </ul>
 </template>
 
