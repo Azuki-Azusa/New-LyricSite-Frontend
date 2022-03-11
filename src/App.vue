@@ -53,12 +53,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view v-slot="{ Component }">
-        <template v-if="Component">
-          <keep-alive>
-            <component :is="Component"></component>
-          </keep-alive>
-        </template>
+      <router-view>
       </router-view>
     </q-page-container>
   </q-layout>
@@ -84,7 +79,6 @@ onAuthStateChanged(auth, (userPara) => {
     // ...
   } else {
     user.value = null;
-
   }
 });
 
@@ -111,6 +105,11 @@ const sider = [
     route: { name: 'MyUpload'},
     icon: 'mdi-pencil',
     name: 'MyUpload'
+  },
+  {
+    route: { name: 'About'},
+    icon: 'mdi-information',
+    name: 'About'
   }
 ]
 

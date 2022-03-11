@@ -1,8 +1,12 @@
 export function covertLyrics(lyrics) {
+    var newLyrics = []
     for(var i = 0; i < lyrics.length; i ++) {
-        lyrics[i].text = convert(lyrics[i].text);
+        newLyrics.push({
+            time: lyrics[i].time,
+            text: convert(lyrics[i].text)
+        })
     }
-    return lyrics;
+    return newLyrics;
 }
 
 function convert(row) {

@@ -1,8 +1,11 @@
 <template>
   <div class="row">
     <div class="col-auto">
-      <q-input square outlined label="VideoId" v-model="videoId"></q-input>
       <q-input square outlined label="Title" v-model="title" />
+      <div class="row full-width">
+        <q-input class="col-6" square outlined label="VideoId" v-model="videoId"></q-input>
+        <q-input class="col-6" square outlined label="Creater" v-model="creater"></q-input>
+      </div>
       <iframe
         id="player"
         type="text/html"
@@ -94,8 +97,8 @@
 </template>
 
 <script setup>
-import { ref, watch, onDeactivated, onActivated, inject } from "vue";
-import { QInput, copyToClipboard } from "quasar";
+import { ref, watch, inject, onBeforeUnmount } from "vue";
+import { QInput, copyToClipboard, Dialog } from "quasar";
 import { useRouter } from 'vue-router'
 import viewer from "../components/Viewer.vue";
 import { getAuth } from "firebase/auth";
@@ -103,6 +106,7 @@ import { getAuth } from "firebase/auth";
 const title = ref("");
 const viewerCom = ref();
 const lyrics = ref([]);
+const creater = ref("");
 const isPreview = ref(false);
 
 watch(lyrics.value, (newValue) => {
@@ -122,16 +126,17 @@ var player;
 let timeInterval;
 const currentTime = ref(0);
 const videoId = ref("");
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player("player", {
-    events: {
-      onReady: onPlayerReady,
-      onError: OnPlayerError,
-    },
-  });
-}
-
-window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+var checkYT = setInterval(function () {
+    if(YT.loaded){
+        player = new YT.Player("player", {
+          events: {
+            onReady: onPlayerReady,
+            onError: OnPlayerError,
+          },
+        });
+        clearInterval(checkYT);
+    }
+}, 100);
 
 const host = inject("host");
 const router = useRouter();
@@ -148,6 +153,7 @@ const clickSubmitButton = () => {
     data: {
       video_id: videoId.value,
       title: title.value,
+      creater: creater.value,
       lyric: JSON.stringify(lyrics.value),
       token: user.stsTokenManager.accessToken
     },
@@ -157,7 +163,10 @@ const clickSubmitButton = () => {
       router.push({ name: "Song", params: { id: data.lyric_id } });
     }
     else {
-      console.log(data.errMsg)
+      Dialog.create({
+        title: 'Error',
+        message: data.errMsg
+      })
     }
   }).catch(function (e) {
     console.log(e);
@@ -212,10 +221,10 @@ const onPlayerReady = () => {
 const OnPlayerError = (e) => {
   console.log(e);
 };
-onActivated(() => {});
-onDeactivated(() => {
+
+onBeforeUnmount(() => {
   clearInterval(timeInterval);
-});
+})
 </script>
 
 <style scoped>

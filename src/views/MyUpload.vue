@@ -19,7 +19,7 @@
 <script setup>
 import { ref, inject } from "vue";
 import SongCard from "../components/SongCard.vue";
-import { onAuthStateChanged, getAuth } from "firebase/auth";
+import { onAuthStateChanged, getAuth, Dialog } from "firebase/auth";
 import { useRouter } from "vue-router";
 
 const songs = ref([]);
@@ -37,8 +37,16 @@ onAuthStateChanged(auth, (userPara) => {
         host + "/api/lyrics/myUpload/" + user.stsTokenManager.accessToken,
     })
       .then(function (response) {
-        songs.value = response.data;
-        console.log(songs.value);
+        var data = response.data
+        if(data.state) {
+          songs.value = data.data;
+        }
+        else {
+          Dialog.create({
+            title: 'Error',
+            message: data.errMsg
+          })
+        }
       })
       .catch(function (e) {
         console.log(e);
@@ -58,8 +66,16 @@ const clickDeleteButton = (id) => {
         host + "/api/lyrics/" + user.stsTokenManager.accessToken + "/" + id,
     })
       .then(function (response) {
-        songs.value = response.data;
-        console.log(songs.value);
+        var data = response.data
+        if(data.state) {
+          songs.value = data.data;
+        }
+        else {
+          Dialog.create({
+            title: 'Error',
+            message: data.errMsg
+          })
+        }
       })
       .catch(function (e) {
         console.log(e);

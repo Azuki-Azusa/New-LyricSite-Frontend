@@ -41,11 +41,19 @@ const routes = [
         }
     },
     {
+        path: '/about',
+        name: 'About',
+        component: () => import('./views/About.vue'),
+        meta: {
+            title: 'ボカシ About'
+        }
+    },
+    {
         path: '/myupload',
         name: 'MyUpload',
         component: () => import('./views/MyUpload.vue'),
         meta: {
-            title: 'ボカシ Upload'
+            title: 'ボカシ MyUpload'
         }
     },
     {

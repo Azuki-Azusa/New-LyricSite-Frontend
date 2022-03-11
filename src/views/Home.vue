@@ -18,8 +18,16 @@ onMounted(() => {
     url: host + "/api/lyrics/all",
   })
     .then(function (response) {
-      songs.value = response.data;
-      console.log(songs.value)
+      var data = response.data
+        if(data.state) {
+          songs.value = data.data;
+        }
+        else {
+          this.$q.dialog({
+            title: 'Error',
+            message: data.errMsg
+          })
+        }
     })
     .catch(function (e) {
       console.log(e);

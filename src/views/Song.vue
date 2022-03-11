@@ -2,6 +2,7 @@
   <div class="row">
     <div class="col-auto">
       <div class="title">{{song.title}}</div>
+      <div class="creater">{{song.creater}}</div>
       <iframe
         id="player"
         type="text/html"
@@ -24,8 +25,7 @@ import {
   ref,
   defineProps,
   inject,
-  onActivated,
-  onDeactivated,
+  onBeforeUnmount,
 } from "vue";
 import viewer from "../components/Viewer.vue";
 import { getAnalytics, logEvent } from "firebase/analytics";
@@ -38,6 +38,7 @@ const song = ref({
   title: "",
   video_id: "",
   lyric: [],
+  creater: "",
 });
 const axios = require("axios").default;
 const host = inject("host");
@@ -52,15 +53,16 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;
 let timeInterval;
 const currentTime = ref(0);
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player("player", {
-    events: {
-      onReady: onPlayerReady,
-    },
-  });
-}
-
-window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+var checkYT = setInterval(function () {
+    if(YT.loaded){
+        player = new YT.Player("player", {
+          events: {
+            onReady: onPlayerReady,
+          },
+        });
+        clearInterval(checkYT);
+    }
+}, 100);
 
 const onPlayerReady = () => {
   clearInterval(timeInterval);
@@ -68,29 +70,37 @@ const onPlayerReady = () => {
     currentTime.value = player.getCurrentTime().toFixed(1);
     viewerCom.value.resetShowLyric(currentTime.value);
   }, 100);
-};
-
-onActivated(() => {
-    axios({
+  axios({
     method: "get",
     url: host + "/api/lyrics/" + id.value,
   })
     .then(function (response) {
-      song.value = response.data;
-      song.value.lyric = JSON.parse(song.value.lyric);
-      document.title = song.value.title;
-      logEvent(analytics, "open_song", {
+      var data = response.data
+        if(data.state) {
+          song.value = data.data;
+          song.value.lyric = JSON.parse(song.value.lyric);
+          document.title = song.value.title;
+          logEvent(analytics, "open_song", {
         id: song.value.id,
         title: song.value.title,
       });
+        }
+        else {
+          this.$q.dialog({
+            title: 'Error',
+            message: data.errMsg
+          })
+        }
+      
     })
     .catch(function (e) {
       console.log(e);
     });
-});
-onDeactivated(() => {
+};
+
+onBeforeUnmount(() => {
   clearInterval(timeInterval);
-});
+})
 </script>
 
 <style scoped>
@@ -101,8 +111,9 @@ iframe {
   max-height: calc(100vh - 50px);
   overflow: auto;
 }
-.title {
+.title, .creater {
     text-align:center;
     font-size: 24px;
 }
+
 </style>
