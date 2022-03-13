@@ -1,5 +1,5 @@
 <template>
-  <q-card class="song-card" clickabe @click="clickSongCard">
+  <q-card class="song-card q-ma-md" clickabe @click="clickSongCard">
     <q-img :src="src" basic>
       <div class="absolute-bottom text-subtitle2 text-center">
         {{ title }}
@@ -19,7 +19,7 @@ const props = defineProps({ song: {
 } });
 const id = ref(props.song.id);
 const title = ref(props.song.title);
-const src = ref("https://i.ytimg.com/vi/" + props.song.video_id + "/default.jpg");
+const src = ref("https://i.ytimg.com/vi/" + props.song.video_id + "/0.jpg");
 const router = useRouter();
 
 const clickSongCard = () => {
@@ -29,9 +29,7 @@ const clickSongCard = () => {
 
 <style scoped>
 .song-card {
-    width: 100%;
-    max-width: 200px;
-    margin: 12px 12px 12px 12px;
+    width: 300px;
 }
 .song-card:hover {
     cursor:pointer;

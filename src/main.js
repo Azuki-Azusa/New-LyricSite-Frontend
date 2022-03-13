@@ -81,7 +81,6 @@ router.beforeEach((to, from, next) => {
     next()
 })
 
-console.log(process.env.VUE_APP_BACKEND_HOST)
 const host = process.env.VUE_APP_BACKEND_HOST;
 
 const app = createApp(App);

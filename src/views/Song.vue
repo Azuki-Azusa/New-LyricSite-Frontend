@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <div class="col-auto">
+    <div class="col-12 col-md-auto">
       <div class="title">{{song.title}}</div>
       <div class="creater">{{song.creater}}</div>
       <iframe
@@ -14,7 +14,7 @@
         frameborder="0"
       ></iframe>
     </div>
-    <div class="col">
+    <div class="col-12 col-md">
       <viewer :lyrics="song.lyric" ref="viewerCom" />
     </div>
   </div>

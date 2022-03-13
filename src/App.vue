@@ -60,37 +60,20 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onBeforeMount } from "vue";
 import { Dark } from "quasar";
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-} from "firebase/auth";
+import Firebase from "./utils/firebase.js"
 
-const provider = new GoogleAuthProvider();
-const auth = getAuth();
-const user = ref();
+const user = ref(null);
 
-onAuthStateChanged(auth, (userPara) => {
-  if (userPara) {
-    user.value = userPara;
-    // ...
-  } else {
-    user.value = null;
-  }
-});
+onBeforeMount(async() => {
+  user.value = await Firebase.onAuth()
+})
 
-const signIn = () => {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      user.value = result.user;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+const signIn = async () => {
+  user.value = await Firebase.signIn().user;
 };
+
 
 Dark.set(true);
 const leftDrawerOpen = ref(false);

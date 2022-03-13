@@ -38,6 +38,7 @@
           color="white"
           text-color="black"
           label="Add"
+          v-if="!isPreview"
           @click="clickAddButton"
         />
         <q-btn
@@ -45,6 +46,7 @@
           color="white"
           text-color="black"
           label="Ruby"
+          v-if="!isPreview"
           @click="clickCopyRuby"
         />
         <q-btn
