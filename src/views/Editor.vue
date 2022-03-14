@@ -3,19 +3,27 @@
     <div class="col-auto">
       <q-input square outlined label="Title" v-model="title" />
       <div class="row full-width">
-        <q-input class="col-6" square outlined label="VideoId" v-model="videoId"></q-input>
-        <q-input class="col-6" square outlined label="Creater" v-model="creater"></q-input>
+        <q-input
+          class="col-6"
+          square
+          outlined
+          label="VideoId"
+          v-model="videoId"
+        ></q-input>
+        <q-input
+          class="col-6"
+          square
+          outlined
+          label="Creater"
+          v-model="creater"
+        ></q-input>
       </div>
       <iframe
         id="player"
         type="text/html"
         width="640"
         height="360"
-        :src="
-          'http://www.youtube.com/embed/' +
-          videoId +
-          '?enablejsapi=1'
-        "
+        :src="'http://www.youtube.com/embed/' + videoId + '?enablejsapi=1'"
         frameborder="0"
       ></iframe>
       <div class="q-pa-md q-gutter-sm justify-evenly row">
@@ -99,16 +107,21 @@
 </template>
 
 <script setup>
-import { ref, watch, inject, defineProps, onMounted, onBeforeUnmount } from "vue";
-import { QInput, copyToClipboard, Dialog } from "quasar";
-import { useRouter } from 'vue-router'
+import {
+  ref,
+  watch,
+  defineProps,
+  onMounted,
+  onBeforeUnmount,
+} from "vue";
+import { QInput, copyToClipboard } from "quasar";
+import { useRouter } from "vue-router";
 import viewer from "../components/Viewer.vue";
-import { getAuth } from "firebase/auth";
+import { req } from "../utils/httpClient.js";
+import Firebase from "../utils/firebase.js";
 
 const props = defineProps({ id: Number });
 const id = ref(Number(props.id));
-const axios = require("axios").default;
-const host = inject("host");
 
 const title = ref("");
 const creater = ref("");
@@ -117,32 +130,13 @@ const lyrics = ref([]);
 const isPreview = ref(false);
 const videoId = ref("");
 
-onMounted(() => {
-  axios({
-    method: "get",
-    url: host + "/api/lyrics/" + id.value,
-  })
-    .then(function (response) {
-      var data = response.data;
-      if (data.state) {
-        var song = data.data;
-        console.log(song.lyric)
-        lyrics.value = JSON.parse(song.lyric);
-        title.value = song.title;
-        creater.value = song.creater;
-        videoId.value = song.video_id
-        document.title = 'Edit ' + song.title;
-      }
-      else {
-        Dialog.create({
-        title: 'Error',
-        message: data.errMsg
-      })
-      }
-    })
-    .catch(function () {
-      
-    });
+onMounted(async () => {
+  const song = await req("get", "/lyrics/" + id.value);
+  lyrics.value = JSON.parse(song.lyric);
+  title.value = song.title;
+  creater.value = song.creater;
+  videoId.value = song.video_id;
+  document.title = "Edit " + song.title;
 });
 
 watch(lyrics.value, (newValue) => {
@@ -163,48 +157,32 @@ let timeInterval;
 const currentTime = ref(0);
 
 var checkYT = setInterval(function () {
-    if(YT.loaded){
-        player = new YT.Player("player", {
-          events: {
-            onReady: onPlayerReady,
-            onError: OnPlayerError,
-          },
-        });
-        clearInterval(checkYT);
-    }
+  if (YT.loaded) {
+    player = new YT.Player("player", {
+      events: {
+        onReady: onPlayerReady,
+        onError: OnPlayerError,
+      },
+    });
+    clearInterval(checkYT);
+  }
 }, 100);
 
 const router = useRouter();
 
-const clickSubmitButton = () => {
-  const user = getAuth().currentUser;
-  if (!user) {
-    confirm('Please Login')
-  }
-  axios({
-    method: "put",
-    url: host + "/api/lyrics",
-    data: {
-      lyric_id: id.value,
-      video_id: videoId.value,
-      title: title.value,
-      creater: creater.value,
-      lyric: JSON.stringify(lyrics.value),
-      token: user.stsTokenManager.accessToken
-    },
-  }).then(function (response) {
-    var data = response.data
-    if(data.state) {
-      router.push({ name: "Song", params: { id: data.lyric_id } });
-    }
-    else {
-      Dialog.create({
-        title: 'Error',
-        message: data.errMsg
-      })
-    }
-  }).catch(function (e) {
-    console.log(e);
+const clickSubmitButton = async () => {
+  const token = await Firebase.getToken();
+  const data = {
+    lyric_id: id.value,
+    video_id: videoId.value,
+    title: title.value,
+    creater: creater.value,
+    lyric: JSON.stringify(lyrics.value),
+    token: token,
+  };
+  console.log(data)
+  req("put", "/lyrics/", data).then((data) => {
+    router.push({ name: "Song", params: { id: data } });
   });
 };
 
@@ -259,7 +237,7 @@ const OnPlayerError = (e) => {
 
 onBeforeUnmount(() => {
   clearInterval(timeInterval);
-})
+});
 </script>
 
 <style scoped>

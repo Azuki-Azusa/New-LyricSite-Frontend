@@ -99,11 +99,12 @@
 </template>
 
 <script setup>
-import { ref, watch, inject, onBeforeUnmount } from "vue";
-import { QInput, copyToClipboard, Dialog } from "quasar";
+import { ref, watch, onBeforeUnmount } from "vue";
+import { QInput, copyToClipboard } from "quasar";
 import { useRouter } from 'vue-router'
 import viewer from "../components/Viewer.vue";
-import { getAuth } from "firebase/auth";
+import { req } from "../utils/httpClient.js";
+import Firebase from "../utils/firebase.js";
 
 const title = ref("");
 const viewerCom = ref();
@@ -140,38 +141,20 @@ var checkYT = setInterval(function () {
     }
 }, 100);
 
-const host = inject("host");
 const router = useRouter();
-const axios = require("axios").default;
 
-const clickSubmitButton = () => {
-  const user = getAuth().currentUser;
-  if (!user) {
-    confirm('Please Login')
-  }
-  axios({
-    method: "post",
-    url: host + "/api/lyrics",
-    data: {
-      video_id: videoId.value,
-      title: title.value,
-      creater: creater.value,
-      lyric: JSON.stringify(lyrics.value),
-      token: user.stsTokenManager.accessToken
-    },
-  }).then(function (response) {
-    var data = response.data
-    if(data.state) {
-      router.push({ name: "Song", params: { id: data.lyric_id } });
-    }
-    else {
-      Dialog.create({
-        title: 'Error',
-        message: data.errMsg
-      })
-    }
-  }).catch(function (e) {
-    console.log(e);
+const clickSubmitButton = async () => {
+  const token = await Firebase.getToken();
+  const data = {
+    video_id: videoId.value,
+    title: title.value,
+    creater: creater.value,
+    lyric: JSON.stringify(lyrics.value),
+    token: token,
+  };
+  console.log(data)
+  req("post", "/lyrics/", data).then((data) => {
+    router.push({ name: "Song", params: { id: data } });
   });
 };
 

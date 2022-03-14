@@ -19,8 +19,10 @@ export async function req(method, path, data = null) {
                     title: 'Error',
                     message: data.errMsg
                 })
+                reject()
             }
-        }).catch(function () {
+        }).catch(function (e) {
+            console.log(e)
             reject()
         });
     })
