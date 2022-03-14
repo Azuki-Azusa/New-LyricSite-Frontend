@@ -36,7 +36,7 @@ const songs = ref([]);
 
 onBeforeMount(async () => {
   const token = await Firebase.getToken();
-  songs.value = await req("get", "/lyrics/myUpload/" + token);
+  if (token) songs.value = await req("get", "/lyrics/myUpload/" + token);
 });
 
 const clickDeleteButton = (title, id) => {

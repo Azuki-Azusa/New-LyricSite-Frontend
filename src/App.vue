@@ -67,7 +67,11 @@ import Firebase from "./utils/firebase.js"
 const user = ref(null);
 
 onBeforeMount(async() => {
-  user.value = await Firebase.onAuth()
+  Firebase.onAuth().then((result) => {
+    user.value = result
+  }).catch(() => {
+    user.value = null
+  })
 })
 
 const signIn = async () => {
