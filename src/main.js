@@ -3,25 +3,28 @@ import App from './App.vue'
 import quasarUserOptions from './quasar-user-options'
 import { Quasar } from 'quasar'
 import { createRouter, createWebHashHistory } from 'vue-router'
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import Firebase from "./utils/firebase.js";
+// // Import the functions you need from the SDKs you need
+// import { initializeApp } from "firebase/app";
+// // TODO: Add SDKs for Firebase products that you want to use
+// // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-    apiKey: "AIzaSyBu5uo0aifEwC5MluPkBft6kIQ5974oeOY",
-    authDomain: "bokashi39.firebaseapp.com",
-    projectId: "bokashi39",
-    storageBucket: "bokashi39.appspot.com",
-    messagingSenderId: "1080230961751",
-    appId: "1:1080230961751:web:9cec29ad40895e80b07912",
-    measurementId: "G-VTT6CLS2Z2"
-};
+// // Your web app's Firebase configuration
+// // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// const firebaseConfig = {
+//     apiKey: "AIzaSyBu5uo0aifEwC5MluPkBft6kIQ5974oeOY",
+//     authDomain: "bokashi39.firebaseapp.com",
+//     projectId: "bokashi39",
+//     storageBucket: "bokashi39.appspot.com",
+//     messagingSenderId: "1080230961751",
+//     appId: "1:1080230961751:web:9cec29ad40895e80b07912",
+//     measurementId: "G-VTT6CLS2Z2"
+// };
 
-// Initialize Firebase
-initializeApp(firebaseConfig);
+// // Initialize Firebase
+// initializeApp(firebaseConfig);
+
+Firebase.constructor()
 
 const routes = [
     {

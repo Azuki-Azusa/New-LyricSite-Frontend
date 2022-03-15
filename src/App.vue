@@ -14,7 +14,7 @@
         <q-toolbar-title> ボカシ </q-toolbar-title>
 
         <div>
-          <q-btn v-if="user" round>
+          <q-btn v-if="user" round @click="profile = true">
             <q-avatar size="42px">
               <img :src="user.photoURL" />
             </q-avatar>
@@ -23,6 +23,36 @@
         </div>
       </q-toolbar>
     </q-header>
+
+    <q-dialog v-model="profile">
+      <q-card dark bordered class="bg-grey-9 my-card">
+        <q-item>
+        <q-item-section avatar>
+          <q-avatar>
+            <img :src="user.photoURL">
+          </q-avatar>
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label>{{ user.displayName }}</q-item-label>
+          <q-item-label caption>{{ user.email }}</q-item-label>
+        </q-item-section>
+      </q-item>
+
+      <q-separator dark inset />
+      <q-card-section>
+        This is the Google account you have logged in.<br>
+        Site gets this information from Google Firebase Auth.<br>
+        Site doesn't store them.<br>
+        Site only store your Firebase uid of this site.<br>
+        uid: {{ user.uid }}<br>
+      </q-card-section>
+      
+      <q-card-actions align="right">
+        <q-btn flat @click="signOut">signOut</q-btn>
+      </q-card-actions>
+    </q-card>
+    </q-dialog>
 
     <q-drawer
       v-model="leftDrawerOpen"
@@ -65,9 +95,10 @@ import { Dark } from "quasar";
 import Firebase from "./utils/firebase.js"
 
 const user = ref(null);
+const profile = ref(false);
 
 onBeforeMount(async() => {
-  Firebase.onAuth().then((result) => {
+  await Firebase.onAuth().then((result) => {
     user.value = result
   }).catch(() => {
     user.value = null
@@ -75,8 +106,16 @@ onBeforeMount(async() => {
 })
 
 const signIn = async () => {
-  user.value = await Firebase.signIn().user;
+  const result = await Firebase.signIn()
+  user.value = result.user
 };
+
+const signOut = async () => {
+  await Firebase.signOut().then(() => {
+    profile.value = false;
+    user.value = null;
+  })
+}
 
 
 Dark.set(true);

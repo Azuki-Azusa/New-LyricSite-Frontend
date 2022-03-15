@@ -26,7 +26,6 @@ const firebaseConfig = {
 export class Firebase {
   constructor() {
     initializeApp(firebaseConfig);
-    this.token = '';
   }
 
 
@@ -36,7 +35,7 @@ export class Firebase {
   }
 
   async signOut() {
-    return await signOut();
+    return await signOut(getAuth());
   }
 
   async getToken() {
