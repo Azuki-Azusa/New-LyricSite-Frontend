@@ -1,16 +1,18 @@
 <template>
-  <q-card class="song-card q-ma-md" clickabe @click="clickSongCard">
+  <q-item :to="route">
+    <q-card class="song-card q-ma-md" >
     <q-img :src="src" basic>
       <div class="absolute-bottom text-subtitle2 text-center">
         {{ title }}
       </div>
     </q-img>
   </q-card>
+  </q-item>
+  
 </template>
 
 <script setup>
 import { defineProps, ref } from "vue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({ song: {
     id: Number,
@@ -20,11 +22,9 @@ const props = defineProps({ song: {
 const id = ref(props.song.id);
 const title = ref(props.song.title);
 const src = ref("https://i.ytimg.com/vi/" + props.song.video_id + "/0.jpg");
-const router = useRouter();
 
-const clickSongCard = () => {
-  router.push({ name: "Song", params: { id: id.value } });
-};
+const route = { name: "Song", params: { id: id.value } }
+console.log(route)
 </script>
 
 <style scoped>
