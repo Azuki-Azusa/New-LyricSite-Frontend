@@ -92,7 +92,16 @@
 <script setup>
 import { ref, onBeforeMount } from "vue";
 import { Dark } from "quasar";
+import { browserError } from './utils/dialog.js'
 import Firebase from "./utils/firebase.js"
+
+const { detect } = require('detect-browser');
+const browser = detect();
+switch (browser && browser.name) {
+  case 'safari': {
+    browserError()
+  }
+}
 
 const user = ref(null);
 const profile = ref(false);
@@ -131,6 +140,11 @@ const sider = [
     route: { name: 'MyUpload'},
     icon: 'mdi-pencil',
     name: 'MyUpload'
+  },
+  {
+    route: { name: 'MyFavorite'},
+    icon: 'mdi-folder-star',
+    name: 'MyFavorite'
   },
   {
     route: { name: 'About'},

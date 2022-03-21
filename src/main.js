@@ -36,14 +36,6 @@ const routes = [
         }
     },
     {
-        path: '/upload',
-        name: 'Upload',
-        component: () => import('./views/Upload.vue'),
-        meta: {
-            title: 'ボカシ Upload'
-        }
-    },
-    {
         path: '/about',
         name: 'About',
         component: () => import('./views/About.vue'),
@@ -71,6 +63,11 @@ const routes = [
         props: true,
         component: () => import('./views/Song.vue'),
     },
+    {
+        path: '/mafavorite',
+        name: 'MyFavorite',
+        component: () => import('./views/MyFavorite.vue'),
+    }
 ]
 
 const router = createRouter({

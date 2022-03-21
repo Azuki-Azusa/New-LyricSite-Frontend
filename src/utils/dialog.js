@@ -13,3 +13,10 @@ export function loginError() {
         message: 'Please login and refresh page.'
     })
 }
+
+export function browserError() {
+    Dialog.create({
+        title: 'Browser Error',
+        message: 'Your browser is not supported.'
+    })
+}

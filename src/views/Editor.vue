@@ -1,7 +1,10 @@
 <template>
   <div class="row">
     <div class="col-auto">
-      <q-input square outlined label="Title" v-model="title" />
+      <div class="row full-width">
+        <q-input class="col" square outlined label="Title" v-model="title" />
+        <q-toggle v-model="has_furigana" label="ふりがな"/>
+      </div>
       <div class="row full-width">
         <q-input
           class="col-6"
@@ -107,13 +110,7 @@
 </template>
 
 <script setup>
-import {
-  ref,
-  watch,
-  defineProps,
-  onMounted,
-  onBeforeUnmount,
-} from "vue";
+import { ref, watch, defineProps, onMounted, onBeforeUnmount } from "vue";
 import { QInput, copyToClipboard } from "quasar";
 import { useRouter } from "vue-router";
 import viewer from "../components/Viewer.vue";
@@ -129,14 +126,22 @@ const viewerCom = ref();
 const lyrics = ref([]);
 const isPreview = ref(false);
 const videoId = ref("");
+const has_furigana = ref(false);
 
 onMounted(async () => {
-  const song = await req("get", "/lyrics/" + id.value);
-  lyrics.value = JSON.parse(song.lyric);
-  title.value = song.title;
-  creater.value = song.creater;
-  videoId.value = song.video_id;
-  document.title = "Edit " + song.title;
+  if (id.value != 0) {
+    const song = await req("get", "/lyrics/" + id.value);
+    console.log(song)
+    lyrics.value = JSON.parse(song.lyric);
+    title.value = song.title;
+    creater.value = song.creater;
+    videoId.value = song.video_id;
+    has_furigana.value = song.has_furigana == 0 ? false : true;
+    document.title = "Edit " + song.title;
+  }
+  else {
+    document.title = "Upload";
+  }
 });
 
 watch(lyrics.value, (newValue) => {
@@ -178,10 +183,11 @@ const clickSubmitButton = async () => {
     title: title.value,
     creater: creater.value,
     lyric: JSON.stringify(lyrics.value),
+    furigana: has_furigana.value ? 1 : 0,
     token: token,
   };
-  console.log(data)
-  req("put", "/lyrics/", data).then((data) => {
+  console.log(data);
+  req(id.value == 0 ? "post" : "put", "/lyrics/", data).then((data) => {
     router.push({ name: "Song", params: { id: data } });
   });
 };

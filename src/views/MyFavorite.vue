@@ -4,7 +4,7 @@
       color="white"
       text-color="black"
       class="float-right"
-      :to="{ name: 'Edit', params: { id: 0 } }"
+      :to="{ name: 'Upload' }"
       >New</q-btn
     >
   </div>
@@ -14,7 +14,6 @@
         <song-card :song="song"></song-card>
         <q-separator dark />
         <q-card-actions class="row justify-between">
-          <q-btn @click="clickEditButton(song.id)" flat>Edit</q-btn>
           <q-btn @click="clickDeleteButton(song.title, song.id)" flat
             >Delete</q-btn
           >
@@ -27,16 +26,15 @@
 <script setup>
 import { ref, onBeforeMount } from "vue";
 import SongCard from "../components/SongCard.vue";
-import { useRouter } from "vue-router";
 import Firebase from "../utils/firebase.js";
 import { req } from "../utils/httpClient.js";
 import { Dialog } from "quasar";
+
 const songs = ref([]);
 
 onBeforeMount(async () => {
   const token = await Firebase.getToken();
-  
-  if (token) songs.value = await req("get", "/lyrics/myUpload/" + token);
+  if (token) songs.value = await req("get", "/lyrics/myFavorite/" + token);
 });
 
 const clickDeleteButton = (title, id) => {
@@ -51,10 +49,6 @@ const clickDeleteButton = (title, id) => {
   });
 };
 
-const router = useRouter();
-const clickEditButton = (id) => {
-  router.push({ name: "Edit", params: { id: id } });
-};
 </script>
 
 <style scoped>

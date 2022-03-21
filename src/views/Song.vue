@@ -1,8 +1,9 @@
 <template>
   <div class="row">
     <div class="col-12 col-md-auto">
-      <div class="title">{{song.title}}</div>
-      <div class="creater">{{song.creater}}</div>
+      <div class="title">{{ song.title }}</div>
+      <div class="creater">{{ song.creater }}</div>
+      <div class="favorite"><q-toggle v-model="favorite" label="Favorite" /></div>
       <iframe
         id="player"
         type="text/html"
@@ -21,14 +22,11 @@
 </template>
 
 <script setup>
-import {
-  ref,
-  defineProps,
-  inject,
-  onBeforeUnmount,
-} from "vue";
+import { ref, defineProps, onMounted,  onBeforeUnmount, watch } from "vue";
 import viewer from "../components/Viewer.vue";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { req } from "../utils/httpClient.js";
+import Firebase from "../utils/firebase.js"
 const analytics = getAnalytics();
 
 const viewerCom = ref();
@@ -40,8 +38,27 @@ const song = ref({
   lyric: [],
   creater: "",
 });
-const axios = require("axios").default;
-const host = inject("host");
+const favorite = ref();
+
+onMounted(async () => {
+  song.value = await req("get", "/lyrics/" + id.value);
+  song.value.lyric = JSON.parse(song.value.lyric);
+  document.title = song.value.title;
+  logEvent(analytics, "open_song", {
+    id: song.value.id,
+    title: song.value.title,
+  });
+  await Firebase.onAuth().then( async () => {
+    const token = await Firebase.getToken();
+    favorite.value = await req("get", "/favorites/" + token + "/" + id.value);
+    watch(favorite, async () => { 
+      const token = await Firebase.getToken();
+      await req("post", "/favorites", { token: token, lyric_id: id.value});
+    });
+  })
+});
+
+
 
 var tag = document.createElement("script");
 tag.src = "https://www.youtube.com/iframe_api";
@@ -54,14 +71,14 @@ var player;
 let timeInterval;
 const currentTime = ref(0);
 var checkYT = setInterval(function () {
-    if(YT.loaded){
-        player = new YT.Player("player", {
-          events: {
-            onReady: onPlayerReady,
-          },
-        });
-        clearInterval(checkYT);
-    }
+  if (YT.loaded) {
+    player = new YT.Player("player", {
+      events: {
+        onReady: onPlayerReady,
+      },
+    });
+    clearInterval(checkYT);
+  }
 }, 100);
 
 const onPlayerReady = () => {
@@ -70,37 +87,11 @@ const onPlayerReady = () => {
     currentTime.value = player.getCurrentTime().toFixed(1);
     viewerCom.value.resetShowLyric(currentTime.value);
   }, 100);
-  axios({
-    method: "get",
-    url: host + "/api/lyrics/" + id.value,
-  })
-    .then(function (response) {
-      var data = response.data
-        if(data.state) {
-          song.value = data.data;
-          song.value.lyric = JSON.parse(song.value.lyric);
-          document.title = song.value.title;
-          logEvent(analytics, "open_song", {
-        id: song.value.id,
-        title: song.value.title,
-      });
-        }
-        else {
-          this.$q.dialog({
-            title: 'Error',
-            message: data.errMsg
-          })
-        }
-      
-    })
-    .catch(function (e) {
-      console.log(e);
-    });
 };
 
 onBeforeUnmount(() => {
   clearInterval(timeInterval);
-})
+});
 </script>
 
 <style scoped>
@@ -111,9 +102,12 @@ iframe {
   max-height: calc(100vh - 50px);
   overflow: auto;
 }
-.title, .creater {
-    text-align:center;
-    font-size: 24px;
+.title,
+.creater {
+  text-align: center;
+  font-size: 24px;
 }
-
+.favorite {
+  text-align: center;
+}
 </style>
