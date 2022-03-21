@@ -183,7 +183,7 @@ const clickSubmitButton = async () => {
     title: title.value,
     creater: creater.value,
     lyric: JSON.stringify(lyrics.value),
-    furigana: has_furigana.value ? 1 : 0,
+    has_furigana: has_furigana.value ? 1 : 0,
     token: token,
   };
   console.log(data);
