@@ -5,33 +5,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from "vue";
+import { ref, onMounted } from "vue";
 import SongCard from "../components/SongCard.vue";
+import { req } from "../utils/httpClient.js";
 
 const songs = ref([]);
-const axios = require("axios").default;
-const host = inject("host");
 
-onMounted(() => {
-  axios({
-    method: "get",
-    url: host + "/api/lyrics/all",
-  })
-    .then(function (response) {
-      var data = response.data
-        if(data.state) {
-          songs.value = data.data;
-        }
-        else {
-          this.$q.dialog({
-            title: 'Error',
-            message: data.errMsg
-          })
-        }
-    })
-    .catch(function (e) {
-      console.log(e);
-    });
+onMounted( async () => {
+  songs.value = await req('get', '/lyrics/all');
 });
 </script>
 
