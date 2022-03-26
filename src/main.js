@@ -67,6 +67,9 @@ const routes = [
         path: '/mafavorite',
         name: 'MyFavorite',
         component: () => import('./views/MyFavorite.vue'),
+        meta: {
+            title: 'ボカシ MyFavorite'
+        }
     },
     {
         path: '/search',

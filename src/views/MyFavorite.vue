@@ -1,25 +1,6 @@
 <template>
-  <div class="q-pa-md">
-    <q-btn
-      color="white"
-      text-color="black"
-      class="float-right"
-      :to="{ name: 'Upload' }"
-      >New</q-btn
-    >
-  </div>
   <div class="q-pa-md row">
-    <template v-for="song in songs" :key="song.id">
-      <q-card class="my-card text-white q-ma-md q-qa-md">
-        <song-card :song="song"></song-card>
-        <q-separator dark />
-        <q-card-actions class="row justify-between">
-          <q-btn @click="clickDeleteButton(song.title, song.id)" flat
-            >Delete</q-btn
-          >
-        </q-card-actions>
-      </q-card>
-    </template>
+    <song-card v-for="song in songs" :key="song.id" :song="song" ></song-card>
   </div>
 </template>
 
@@ -28,7 +9,6 @@ import { ref, onBeforeMount } from "vue";
 import SongCard from "../components/SongCard.vue";
 import Firebase from "../utils/firebase.js";
 import { req } from "../utils/httpClient.js";
-import { Dialog } from "quasar";
 
 const songs = ref([]);
 
@@ -36,18 +16,6 @@ onBeforeMount(async () => {
   const token = await Firebase.getToken();
   if (token) songs.value = await req("get", "/lyrics/myFavorite/" + token);
 });
-
-const clickDeleteButton = (title, id) => {
-  Dialog.create({
-    dark: true,
-    title: "Confirm",
-    message: "Would you like to delete " + title + "?",
-    cancel: true,
-  }).onOk(async() => {
-    const token = await Firebase.getToken();
-    songs.value = await req("delete", "/lyrics/" + token + "/" + id);
-  });
-};
 
 </script>
 
