@@ -10,7 +10,7 @@
         width="640"
         height="360"
         :src="
-          'http://www.youtube.com/embed/' + song.video_id + '?enablejsapi=1'
+          'https://www.youtube.com/embed/' + song.video_id + '?enablejsapi=1'
         "
         frameborder="0"
       ></iframe>

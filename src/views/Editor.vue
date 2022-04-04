@@ -26,7 +26,7 @@
         type="text/html"
         width="640"
         height="360"
-        :src="'http://www.youtube.com/embed/' + videoId + '?enablejsapi=1'"
+        :src="'https://www.youtube.com/embed/' + videoId + '?enablejsapi=1'"
         frameborder="0"
       ></iframe>
       <div class="q-pa-md q-gutter-sm justify-evenly row">
